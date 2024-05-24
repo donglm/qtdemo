@@ -5,8 +5,6 @@ MultilineLabel::MultilineLabel(const QString& text, qreal fixedWidth, QWidget* p
     : QLabel(text, parent)
     , m_fixedWidth(fixedWidth)
 {
-    const int margin = 10;
-    this->setFixedWidth(fixedWidth + m_leftMargin + m_rightMargin);
     QFontMetrics fontMetrics(QApplication::font());
 
     QString currentLine;
@@ -29,19 +27,10 @@ MultilineLabel::MultilineLabel(const QString& text, qreal fixedWidth, QWidget* p
         m_segments.append(currentLine);
     }
 
-    m_lines = m_segments.size();
-    int h = fontMetrics.height();
-    this->setFixedHeight(h * m_lines + m_topMargin + m_bottomMargin);
-}
-
-QSize MultilineLabel::sizeHint() const {
-    QSize sz = QLabel::sizeHint();
-    return sz;
-}
-
-QSize MultilineLabel::minimumSizeHint() const {
-    QSize sz = QLabel::minimumSizeHint();
-    return sz;
+    //上述分行并没有考虑字符串原有的换行符，以及wordwrap，请自行调整逻辑。
+    int lines = m_segments.size();
+    int fontHeight = fontMetrics.height();
+    setFixedSize(fixedWidth, fontHeight * lines);
 }
 
 void MultilineLabel::paintEvent(QPaintEvent* e)
@@ -50,32 +39,27 @@ void MultilineLabel::paintEvent(QPaintEvent* e)
 
     QFont fnt = QApplication::font();
     QFontMetrics fontMetrics(fnt);
-    QString txt = this->text();
     int fontHeight = fontMetrics.height();
-    int lineWidth = m_fixedWidth;
-
-    int mw = fontMetrics.maxWidth();
-
     int y = 0;
-    //for (QString seg : m_segments)
-    //{
-    //    painter.drawText(0, y, seg);
-    //    y += fontHeight;
-    //}
-
-    //QString lineContent;
-    int totalw = 0;
-    for (QChar ch : txt)
+    for (QString seg : m_segments)
     {
-        int cw = fontMetrics.horizontalAdvance(ch);
-        if (totalw + cw < lineWidth) {
-            painter.drawText(totalw + m_leftMargin, y + m_topMargin, cw, fontHeight, 0, ch);
-        }
-        else {
-            totalw = 0;
-            y += fontHeight;
-            painter.drawText(totalw + m_leftMargin, y + m_topMargin, cw, fontHeight, 0, ch);
-        }
-        totalw += cw;
+        /*
+        The flags argument is a bitwise OR of the following flags:
+            Qt::AlignLeft
+            Qt::AlignRight
+            Qt::AlignHCenter
+            Qt::AlignJustify
+            Qt::AlignTop
+            Qt::AlignBottom
+            Qt::AlignVCenter
+            Qt::AlignCenter
+            Qt::TextSingleLine
+            Qt::TextExpandTabs
+            Qt::TextShowMnemonic
+            Qt::TextWordWrap
+        */
+        int flags = Qt::TextSingleLine;
+        painter.drawText(0, y, m_fixedWidth, fontHeight, flags, seg);
+        y += fontHeight;
     }
 }
