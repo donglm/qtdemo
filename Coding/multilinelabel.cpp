@@ -1,8 +1,10 @@
 #include "multilinelabel.h"
+#include <QApplication>
+#include <QPainter>
 
 
 MultilineLabel::MultilineLabel(const QString& text, qreal fixedWidth, QWidget* parent)
-    : QLabel(text, parent)
+    : QWidget(parent)
     , m_fixedWidth(fixedWidth)
 {
     QFontMetrics fontMetrics(QApplication::font());

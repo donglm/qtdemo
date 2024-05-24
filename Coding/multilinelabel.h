@@ -1,9 +1,10 @@
 #ifndef __MULTILINE_LABEL_H__
 #define __MULTILINE_LABEL_H__
 
-#include <QtWidgets>
+#include <QObject>
+#include <QWidget>
 
-class MultilineLabel : public QLabel
+class MultilineLabel : public QWidget
 {
     Q_OBJECT
 public:
